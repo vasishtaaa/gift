@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Admin Login</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Fredoka+One&family=Quicksand:wght@500;700&family=Courier+Prime&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* DUDE THEME COLORS */
+            --primary: #ff0055;
+            --secondary: #ffcc00;
+            --glass: rgba(255, 255, 255, 0.2);
+            --terminal-bg: #050505;
+            --terminal-text: #00ff41;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier Prime', monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            text-align: center;
+            background-color: var(--terminal-bg);
+            transition: background 2s ease-in-out;
+            touch-action: none;
+        }
+
+        /* --- ROMANTIC MODE --- */
+        body.romantic-mode {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #ff0055 50%, #ff9a44 100%);
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewport='0 0 100 100' style='fill:red;font-size:24px;filter:drop-shadow(2px 2px 2px rgba(0,0,0,0.5));'><text y='50%'>❤️</text></svg>") 16 0, auto;
+            overflow-y: auto;
+            /* Enable scrolling for tall content */
+            height: auto;
+            /* Allow height to grow */
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* --- MOUSE TRAIL EFFECT --- */
+        .trail-heart {
+            position: absolute;
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 15px;
+            animation: trailFade 1s linear forwards;
+            z-index: 999;
+        }
+
+        @keyframes trailFade {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-20px) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* --- HEARTBEAT --- */
+        #heartbeat-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s;
+        }
+
+        .pulsing-heart {
+            font-size: 100px;
+            animation: heartbeat 1.5s infinite;
+            text-shadow: 0 0 40px #ff0055;
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            15% {
+                transform: scale(1.3);
+            }
+
+            30% {
+                transform: scale(1);
+            }
+
+            45% {
+                transform: scale(1.15);
+            }
+
+            60% {
+                transform: scale(1);
+            }
+        }
+
+        /* --- CONTAINERS --- */
+        .container {
+            background: rgba(0, 20, 0, 0.95);
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+            border-radius: 5px;
+            padding: 2rem;
+            padding-top: 80px;
+            /* Pushed down to avoid browser bar */
+            width: 90%;
+            max-width: 500px;
+            transition: all 1s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.romantic-mode .container {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 30px;
+            width: 420px;
+            animation: fadeIn 2s;
+            color: white;
+            min-height: 90vh;
+            /* Changed height to min-height */
+            height: auto;
+            overflow-y: auto;
+            padding-bottom: 200px;
+
+            /* ADDED FOR PHOTO STACK FLYING ANIMATION */
+            overflow: visible !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        body.romantic-mode .container::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: var(--terminal-text);
+            font-family: 'Courier Prime', monospace;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        body.romantic-mode h1 {
+            color: #fff;
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            text-shadow: 3px 3px 0px #ff0055;
+            letter-spacing: 2px;
+        }
+
+        p {
+            color: #ccc;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        body.romantic-mode p {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 0;
+            border: 1px solid #00ff41;
+            background: black;
+            color: #00ff41;
+            width: 80%;
+            margin-bottom: 10px;
+            font-family: 'Courier Prime', monospace;
+            outline: none;
+            text-align: left;
+        }
+
+        body.romantic-mode input[type="text"] {
+            padding: 15px;
+            border-radius: 50px;
+            border: 3px solid white;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-family: 'Quicksand', sans-serif;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .btn {
+            background: #002200;
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            padding: 10px 20px;
+            font-family: 'Courier Prime', monospace;
+            cursor: pointer;
+            margin: 10px;
+            transition: 0.5s;
+        }
+
+        .btn:hover {
+            background: #00ff41;
+            color: black;
+        }
+
+        body.romantic-mode .btn {
+            background: var(--secondary);
+            color: #c40055;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Dancing Script', cursive;
+            box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+            font-size: 1.2rem;
+        }
+
+        body.romantic-mode .btn:hover {
+            transform: scale(1.1);
+            background: #fff;
+        }
+
+        body.romantic-mode .btn-secondary {
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: white !important;
+            box-shadow: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .contract-item {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        body.romantic-mode .contract-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 15px;
+            border-left: 5px solid var(--secondary);
+            transition: 0.3s;
+        }
+
+        body.romantic-mode .contract-item:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateX(5px);
+        }
+
+        .contract-item input {
+            transform: scale(1.4);
+            margin-right: 15px;
+            accent-color: var(--secondary);
+        }
+
+        .sweet-promise {
+            display: none;
+        }
+
+        body.romantic-mode .sweet-promise {
+            display: block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px dashed white;
+            color: var(--secondary);
+            font-weight: 700;
+            margin-top: 20px;
+        }
+
+        .bg-emoji {
+            position: absolute;
+            bottom: -100px;
+            font-size: 2.5rem;
+            opacity: 0.4;
+            /* Reduced opacity */
+            animation: floatUp linear infinite;
+            z-index: -1;
+            display: none;
+        }
+
+        body.romantic-mode .bg-emoji {
+            display: block;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-120vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .gift-box {
+            font-size: 7rem;
+            cursor: pointer;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        .gift-shake {
+            animation: shake 0.5s infinite;
+        }
+
+        /* --- PHOTO STACK STYLES (UPDATED) --- */
+        #card-stack {
+            position: relative;
+            width: 280px;
+            height: 320px;
+            margin: 20px auto;
+            margin-bottom: 40px;
+            /* Space for timer */
+            z-index: 20;
+        }
+
+        .stack-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            padding: 10px 10px 40px 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.6s ease-out, opacity 0.6s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stack-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            /* Improved Clarity */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            border: none;
+            display: block;
+        }
+
+        .stack-card .caption {
+            font-family: 'Dancing Script', cursive;
+            color: #ff0055;
+            font-size: 2rem;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* Flying Animations */
+        .fly-left {
+            transform: translate(-150%, 50px) rotate(-30deg) !important;
+            opacity: 0;
+        }
+
+        .fly-right {
+            transform: translate(150%, 50px) rotate(30deg) !important;
+            opacity: 0;
+        }
+
+        /* TIMER */
+        #timer-container {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 15px;
+            border: 2px solid white;
+            animation: fadeIn 3s;
+            position: relative;
+            z-index: 50;
+            width: 80%;
+        }
+
+        #timer {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            color: var(--secondary);
+            text-shadow: 2px 2px 0 #ff0055;
+            letter-spacing: 1px;
+        }
+
+        .timer-label {
+            font-size: 0.8rem;
+            color: white;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        /* OCEAN & BOTTLE */
+        .ocean-wrapper {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            /* Adjusted height for balance */
+            overflow: hidden;
+            border-radius: 0 0 30px 30px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ocean {
+            height: 100px;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .wave {
+            background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/85486/wave.svg') repeat-x;
+            position: absolute;
+            width: 6400px;
+            height: 198px;
+            animation: wave 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+            transform: translate3d(0, 0, 0);
+            opacity: 0.6;
+        }
+
+        .wave:nth-of-type(2) {
+            top: -20px;
+            animation: wave 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) -.125s infinite, swell 15s ease -1.25s infinite;
+            opacity: 1;
+        }
+
+        @keyframes wave {
+            0% {
+                margin-left: 0;
+            }
+
+            100% {
+                margin-left: -1600px;
+            }
+        }
+
+        @keyframes swell {
+
+            0%,
+            100% {
+                transform: translate3d(0, -25px, 0);
+            }
+
+            50% {
+                transform: translate3d(0, 5px, 0);
+            }
+        }
+
+        /* FIXED BOTTLE: Moved outside ocean wrapper for better z-index handling */
+        #bottle-container {
+            position: absolute;
+            bottom: 80px;
+            /* Adjusted position */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4rem;
+            cursor: pointer;
+            z-index: 60;
+            pointer-events: auto;
+            /* Smoother, more natural float */
+            animation: floatBottle 4s ease-in-out infinite;
+            transition: all 0.5s;
+        }
+
+        @keyframes floatBottle {
+
+            0%,
+            100% {
+                transform: translate(-50%, 0) rotate(3deg);
+            }
+
+            50% {
+                transform: translate(-50%, -12px) rotate(-3deg);
+            }
+        }
+
+        /* MESSAGE MODAL */
+        #message-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: #fffbe6;
+            color: #333;
+            width: 300px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            text-align: center;
+            transition: 0.4s;
+            border: 2px dashed #d4a373;
+        }
+
+        #message-modal.open {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .music-btn {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid white;
+            color: white;
+            width: 45px;
+            height: 45px;
+            line-height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            z-index: 100;
+        }
+
+        body.romantic-mode .music-btn {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="heartbeat-overlay" class="hidden">
+        <div class="pulsing-heart">❤️</div>
+    </div>
+    <div class="music-btn" onclick="toggleMusic()">🎵</div>
+    <audio id="bg-music" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+    <div id="emoji-container"></div>
+
+    <div id="login-screen" class="container">
+        <h1 id="login-title">SYSTEM_LOGIN_V2.4</h1>
+        <p id="login-subtitle">Enter Administrator Access Key to proceed.</p>
+        <input type="text" id="password-input" placeholder="_">
+        <p id="hint-msg" style="font-size: 0.8rem; color: #00ff41;">Hint: DDMMYY (11**06)</p>
+        <p onclick="alert('Pichi danna! The password is: 110906 😂')"
+            style="cursor:pointer; text-decoration:underline; font-size:0.7rem; margin-top:5px; opacity:0.7; color: #00ff41;">
+            Forgot Password?</p>
+        <p id="error-msg" style="color:red; font-weight:bold; height: 20px;"></p>
+        <button id="login-btn" class="btn" onclick="checkPassword()">> AUTHENTICATE</button>
+    </div>
+
+    <div id="contract-screen" class="container hidden">
+        <h1>📜 Love Contract</h1>
+        <p>Ee rules ki OK aithene munduku veltham!</p>
+
+        <div class="contract-item" onclick="toggleItem(this)">
+            <input type="checkbox" class="term-check" onchange="checkTerms(event)">
+            <label>Nuvvu 'Em aindi?' ani adiginappudu... 'Em ledu' ani abadham cheppanu.</label>
+        </div>
+
+        <div class="contract-item" onclick="toggleItem(this)">
+            <input type="checkbox" class="term-check" onchange="checkTerms(event)">
+            <label>Chinnachinna vishayalaku overthink chesi, naa brain paaducheskonu ani promise chesthunnanu.</label>
+        </div>
+
+        <div class="contract-item" onclick="toggleItem(this)">
+            <input type="checkbox" class="term-check" onchange="checkTerms(event)">
+            <label>Manam 'Em tindam?' ani adiginappudu , 'Edokati' anakunda nene decide chesthanu.</label>
+        </div>
+
+        <div class="contract-item" onclick="toggleItem(this)">
+            <input type="checkbox" class="term-check" onchange="checkTerms(event)">
+            <label>Nenu Manchuria inka Mahesh Babu kante ninnu ekkuva premisthunnanu (Konchem eh!).</label>
+        </div>
+
+        <div class="contract-item" onclick="toggleItem(this)">
+            <input type="checkbox" class="term-check" onchange="checkTerms(event)">
+            <label>Nuvvu eppudu adigina, Manchuria tinipinche badhyatha (Responsibility) naadi!</label>
+        </div>
+
+        <div class="sweet-promise">
+            <strong>Naa Promise:</strong><br>
+            "Mana life lo prathi chapter lo nee cheyi pattukoni untanu ani promise chesthunnanu."
+        </div>
+        <button id="agree-btn" class="btn" disabled onclick="showQuestion()">Oppukuntunnanu ✍️</button>
+    </div>
+
+    <div id="question-screen" class="container hidden">
+        <h1>Okka Mata... ❤️</h1>
+        <div class="typewriter-text"
+            style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 15px; border: 2px solid white; min-height: 60px;">
+            <span id="typewriter-content"></span><span style="animation: blink 1s infinite">|</span>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <button class="btn yes-btn" onclick="showGift()">Yes! Fix aipoya 🥰</button>
+            <button class="btn yes-btn" onclick="showGift()">Yesssssss!</button>
+            <button class="btn yes-btn" onclick="showGift()">Yes (Asalu doubt eh ledu) ❤️</button>
+            <button id="no-btn" class="btn btn-secondary" onclick="guiltTrip()">Vodu 😒</button>
+        </div>
+    </div>
+
+    <div id="gift-screen" class="container hidden">
+        <h1>Last Surprise...</h1>
+        <div id="gift-box" class="gift-box" onclick="openGift()">🎁</div>
+        <p>Box meeda click chey!</p>
+    </div>
+
+    <div id="success-screen" class="container hidden">
+        <h1 style="margin-top: 20px;">Eternity ⌛</h1>
+        <p>Naa Life lo best decision nuvve!</p>
+
+        <div id="card-stack">
+
+            <div class="stack-card" onclick="throwCard(this)">
+                <img src="us.jpg" alt="Us"
+                    onerror="this.src='https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif'">
+                <div class="caption">My Safe Place 🏠</div>
+            </div>
+
+            <div class="stack-card" onclick="throwCard(this)">
+                <img src="us2.jpg" alt="Us"
+                    onerror="this.src='https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif'">
+                <div class="caption">My Forever ❤️</div>
+            </div>
+        </div>
+
+        <div id="timer-container">
+            <div class="timer-label">Inni roojulu ayipoindhi appude...</div>
+            <div id="timer">Loading...</div>
+        </div>
+
+        <p
+            style="position: relative; z-index: 70; color: white; font-size: 0.9rem; margin-bottom: 5px; margin-top:20px;">
+            (Click the bottle 👇)</p>
+
+        <div id="bottle-container" onclick="openBottle()">🍾</div>
+
+        <div class="ocean-wrapper">
+            <div class="ocean">
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="message-modal">
+        <h2 style="color: #d4a373; margin: 0 0 10px 0;">💌 Note</h2>
+        <p id="note-text" style="color: #555; font-family: 'Courier Prime'; font-size: 1rem; min-height: 60px;">
+            Loading...
+        </p>
+        <button class="btn" style="background: #d4a373; color: white; border: none;" onclick="closeBottle()">Throw back
+            into sea 🌊</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        // --- MOUSE TRAIL LOGIC ---
+        document.addEventListener('mousemove', function (e) {
+            if (!document.body.classList.contains('romantic-mode')) return;
+            if (Math.random() < 0.85) return;
+            let heart = document.createElement('div');
+            heart.className = 'trail-heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = e.pageX + 'px';
+            heart.style.top = e.pageY + 'px';
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove() }, 1000);
+        });
+
+        // --- LOVE TIMER ---
+        const startDate = new Date("2025-02-20");
+        function updateTimer() {
+            const now = new Date();
+            const diff = now - startDate;
+            if (diff < 0) { document.getElementById("timer").innerText = "Coming Soon! ❤️"; return; }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            document.getElementById("timer").innerText = `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
+        }
+        setInterval(updateTimer, 1000); updateTimer();
+
+        // EMOJIS
+        function createEmojis() {
+            const container = document.getElementById('emoji-container');
+            const emojis = ['❤️', '💖', '🥰', '🌹', '✨', '🦋', '💞', '😍', '💌', '🌸', '💝'];
+            for (let i = 0; i < 25; i++) { /* Reduced count for performance */
+                let span = document.createElement('div');
+                span.className = 'bg-emoji';
+                span.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                span.style.left = Math.random() * 100 + '%';
+                span.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                span.style.animationDelay = (Math.random() * 5) + 's';
+                span.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+                container.appendChild(span);
+            }
+        }
+        createEmojis();
+
+        function toggleMusic() {
+            const music = document.getElementById('bg-music');
+            if (music.paused) { music.play(); document.querySelector('.music-btn').innerText = "🔊"; }
+            else { music.pause(); document.querySelector('.music-btn').innerText = "🎵"; }
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('password-input').value;
+            const errorMsg = document.getElementById('error-msg');
+            const overlay = document.getElementById('heartbeat-overlay');
+
+            if (input.trim() === '110906') {
+                setTimeout(() => {
+                    const music = document.getElementById('bg-music');
+                    music.currentTime = 0;
+                    music.play().catch(e => console.log("Audio blocked"));
+                }, 200);
+
+                document.getElementById('login-screen').classList.add('hidden');
+                overlay.classList.remove('hidden');
+                overlay.style.opacity = '1';
+
+                setTimeout(() => {
+                    document.body.classList.add('romantic-mode');
+                    document.title = "For You ❤️"; // Update Title
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.classList.add('hidden'); }, 1000);
+                    document.getElementById('contract-screen').classList.remove('hidden');
+                }, 3000);
+
+            } else {
+                errorMsg.innerText = "ACCESS_DENIED: INVALID_TOKEN";
+                document.getElementById('login-screen').style.animation = "shake 0.3s";
+                setTimeout(() => { document.getElementById('login-screen').style.animation = ""; }, 300);
+            }
+        }
+
+        // --- CHECKBOX CONFETTI ---
+        function checkTerms(event) {
+            const checkboxes = document.querySelectorAll('.term-check');
+            const agreeBtn = document.getElementById('agree-btn');
+
+            if (event && event.target.checked) {
+                const rect = event.target.getBoundingClientRect();
+                const x = (rect.left + rect.width / 2) / window.innerWidth;
+                const y = (rect.top + rect.height / 2) / window.innerHeight;
+                confetti({
+                    particleCount: 20,
+                    spread: 60,
+                    origin: { x: x, y: y },
+                    colors: ['#ffcc00', '#ff0055']
+                });
+            }
+
+            let allChecked = true;
+            checkboxes.forEach(box => { if (!box.checked) allChecked = false; });
+            agreeBtn.disabled = !allChecked;
+        }
+
+        function showQuestion() {
+            document.getElementById('contract-screen').classList.add('hidden');
+            document.getElementById('question-screen').classList.remove('hidden');
+            const text = "\"Devudu sasinchadu... Manam ee Valentine's Day kalisi celebrate cheskovali ani. Oppukuntava? Leda oppukuntava?\"";
+            const element = document.getElementById('typewriter-content');
+            let index = 0;
+            function type() { if (index < text.length) { element.innerHTML += text.charAt(index); index++; setTimeout(type, 50); } }
+            type();
+        }
+
+        // --- TOGGLE CHECKBOX ON DIV CLICK ---
+        function toggleItem(div) {
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            // Check if event target is NOT the checkbox itself to avoid double-toggling
+            if (event.target !== checkbox) {
+                checkbox.checked = !checkbox.checked;
+                // Trigger the onchange event manually
+                const event = new Event('change');
+                checkbox.dispatchEvent(event);
+            }
+        }
+
+        // --- ENTER KEY LOGIN ---
+        document.getElementById("password-input").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+        });
+
+        function showGift() {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('gift-screen').classList.remove('hidden');
+        }
+
+        let clickCount = 0;
+        const noTexts = ["Nijangane? 🥺", "Oddu please! 😭", "Nuvvu lekunda undalenu! 💔", "Pookie please? 🥺", "Sarele... Nuvve gelichav!"];
+
+        // UPDATED GUILT TRIP FOR MULTIPLE YES BUTTONS
+        function guiltTrip() {
+            const noBtn = document.getElementById('no-btn');
+            const yesBtns = document.querySelectorAll('.yes-btn'); // Select all yes buttons
+
+            if (clickCount < noTexts.length) {
+                noBtn.innerText = noTexts[clickCount];
+
+                // Make ALL yes buttons grow
+                let currentScale = 1 + (clickCount * 0.2);
+                yesBtns.forEach(btn => {
+                    btn.style.transform = `scale(${currentScale})`;
+                });
+
+                clickCount++;
+            } else {
+                noBtn.style.display = 'none';
+                yesBtns.forEach(btn => {
+                    btn.style.transform = "scale(1.5)";
+                    btn.innerText = "Ika tappadu... YES nokku! 😂";
+                });
+            }
+        }
+
+        // Set initial volume
+        document.getElementById('bg-music').volume = 0.3;
+
+        function openGift() {
+            const giftBox = document.getElementById('gift-box');
+            giftBox.classList.add('gift-shake');
+            setTimeout(() => {
+                document.getElementById('gift-screen').classList.add('hidden');
+                document.getElementById('success-screen').classList.remove('hidden');
+                triggerConfetti();
+                // Initialize Photo Stack Visuals
+                resetStackVisuals();
+            }, 1000);
+        }
+
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            var interval = setInterval(function () {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // --- INFINITE PHOTO STACK LOGIC ---
+        function throwCard(card) {
+            // 1. Add fly animation
+            card.style.transition = "transform 0.6s ease-out, opacity 0.6s";
+            const flyClass = Math.random() > 0.5 ? 'fly-right' : 'fly-left';
+            card.classList.add(flyClass);
+
+            // Confetti effect
+            confetti({ particleCount: 10, spread: 40, origin: { y: 0.5 }, colors: ['#ffffff', '#ff0055'] });
+
+            // 2. Wait for animation
+            setTimeout(() => {
+                // 3. Reset card styles
+                card.style.transition = "none";
+                card.classList.remove(flyClass);
+
+                // 4. Move card to bottom of stack (start of DOM)
+                const stack = document.getElementById('card-stack');
+                stack.prepend(card);
+
+                // 5. Update Z-Index and Rotation to keep stack looking messy but correct
+                resetStackVisuals();
+
+                // Re-enable transition
+                setTimeout(() => { card.style.transition = "transform 0.6s ease-out, opacity 0.6s"; }, 50);
+            }, 600);
+        }
+
+        function resetStackVisuals() {
+            const cards = document.querySelectorAll('.stack-card');
+            cards.forEach((card, index) => {
+                // Index 0 is bottom, Index (length-1) is top
+                card.style.zIndex = index + 1;
+
+                // Randomish messy rotation based on index
+                let rotation = (index % 2 === 0) ? -3 : 3;
+                if (index === 0) rotation = 0;
+                card.style.transform = `rotate(${rotation}deg)`;
+            });
+        }
+
+        // Initialize stack on load just in case
+        document.addEventListener("DOMContentLoaded", () => {
+            resetStackVisuals();
+        });
+
+
+        // --- BOTTLE LOGIC ---
+        const bottleMessages = [
+            "My favorite notification is a text from you. 🔔",
+            "Fun Fact: You look 10x cuter when you smile. 😊",
+            "Confession: I'm obsessed with you. ❤️"
+        ];
+
+        function openBottle() {
+            const bottle = document.getElementById('bottle-container');
+            const modal = document.getElementById('message-modal');
+            const text = document.getElementById('note-text');
+            bottle.style.opacity = '0';
+            bottle.style.transform = 'translate(-50%, 100px)';
+            const msg = bottleMessages[Math.floor(Math.random() * bottleMessages.length)];
+            text.innerText = msg;
+            setTimeout(() => { modal.classList.add('open'); confetti({ origin: { y: 0.6 } }); }, 300);
+        }
+
+        function closeBottle() {
+            const bottle = document.getElementById('bottle-container');
+            const modal = document.getElementById('message-modal');
+            modal.classList.remove('open');
+            setTimeout(() => {
+                bottle.style.opacity = '1';
+                bottle.style.transform = 'translate(-50%, 0) rotate(5deg)';
+            }, 500);
+        }
+    </script>
+    <style>
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</body>
+
+</html>
